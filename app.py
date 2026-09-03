@@ -100,7 +100,7 @@ for i, mat in enumerate(materials):
 # Clear axis titles, units, and legends
 fig.update_layout(
     xaxis_title="Temperature (K)",
-    yaxis_title="Specific Heat Capacity, $C_p$ (J/mol·K)",
+    yaxis_title="Specific Heat Capacity, C<sub>p</sub>(J/mol·K)",
     hovermode="x unified",
     template="plotly_white"
 )
