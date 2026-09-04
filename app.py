@@ -21,7 +21,7 @@ def load_data():
 df = load_data()
 
 # Custom Dashboard Header
-st.markdown("<h1 style='text-align: center; color: #5DADE2;'>Thermodynamic Property Database</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #F1948A;'>Thermodynamic Property Database</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.1em; color: #7F8C8D;'>MCR-202 Project Submission • Department of Ceramic Engineering</p>", unsafe_allow_html=True)
 st.divider()
 
