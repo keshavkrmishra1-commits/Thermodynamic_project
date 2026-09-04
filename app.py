@@ -51,12 +51,14 @@ materials = st.sidebar.multiselect(
     default=filtered_df['Material_Name'].unique()[:2]
 )
 
-# 3. User-defined temperature ranges
-t_range = st.sidebar.slider("3. Graph Temperature Range (K)", min_value=200, max_value=3000, value=(298, 1500), step=10)
+# 3. User-defined temperature ranges (Updated Step to 1.0)
+t_range = st.sidebar.slider("3. Graph Temperature Range (K)", min_value=200.0, max_value=3000.0, value=(298.0, 1500.0), step=1.0)
 
 # --- GRAPH GENERATION ---
 fig = go.Figure()
-T_vals = np.linspace(t_range[0], t_range[1], 500)
+
+# Increased resolution from 500 to 3000 points
+T_vals = np.linspace(t_range[0], t_range[1], 3000)
 colors = pc.qualitative.Plotly
 
 for i, mat in enumerate(materials):
@@ -64,12 +66,16 @@ for i, mat in enumerate(materials):
     t_min = mat_data['T_min_K']
     t_max = mat_data['T_max_K']
     
-    t = T_vals / 1000.0
+    # Inject exact boundaries so narrow ranges always render precisely
+    T_mat = np.unique(np.sort(np.append(T_vals, [t_min, t_max])))
+    T_mat = T_mat[(T_mat >= t_range[0]) & (T_mat <= t_range[1])]
+    
+    t = T_mat / 1000.0
     
     # Shomate Equation implementation
     Cp = mat_data['A'] + mat_data['B']*t + mat_data['C']*(t**2) + mat_data['D']*(t**3) + mat_data['E']/(t**2)
     
-    valid_mask = (T_vals >= t_min) & (T_vals <= t_max)
+    valid_mask = (T_mat >= t_min) & (T_mat <= t_max)
     Cp_valid = np.where(valid_mask, Cp, np.nan)
     Cp_invalid = np.where(~valid_mask, Cp, np.nan)
     
@@ -77,7 +83,7 @@ for i, mat in enumerate(materials):
     
     # Solid Line (Valid Range)
     fig.add_trace(go.Scatter(
-        x=T_vals, y=Cp_valid, 
+        x=T_mat, y=Cp_valid, 
         mode='lines', name=mat, legendgroup=mat,
         line=dict(color=line_color, dash='solid', width=3), 
         hovertemplate="T: %{x:.1f} K<br>Cp: %{y:.2f} J/(mol·K)"
@@ -85,7 +91,7 @@ for i, mat in enumerate(materials):
     
     # Dashed Line (Extrapolated Range)
     fig.add_trace(go.Scatter(
-        x=T_vals, y=Cp_invalid, 
+        x=T_mat, y=Cp_invalid, 
         mode='lines', name=f"{mat} (Extrapolated)", legendgroup=mat, showlegend=False,
         line=dict(color=line_color, dash='dash', width=2), 
         hovertemplate="T: %{x:.1f} K<br>Cp: %{y:.2f} J/(mol·K) (Extrapolated)"
